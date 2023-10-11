@@ -9,8 +9,7 @@
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         inherit (pkgs.ocamlPackages) buildDunePackage;
-      in
-      rec {
+      in rec {
         packages = rec {
           default = notty;
           notty = buildDunePackage {
@@ -19,7 +18,7 @@
             src = ./.;
             duneVersion = "3";
             nativeBuildInputs = with pkgs.ocamlPackages; [ cppo ];
-            propagatedBuildInputs = with pkgs.ocamlPackages; [ uutf ];
+            propagatedBuildInputs = with pkgs.ocamlPackages; [ uutf lwt ];
             doCheck = true;
           };
         };
