@@ -385,7 +385,12 @@ module I = struct
 
     let create () =
       let img, line, attr = ref empty, ref empty, ref [] in
-      let fmt = formatter_of_out_functions {
+      (* OCaml 5.4 added a new record field so to keep compatibility, get and
+         update the record, even if warning 23 "useless-record-with" is
+         triggered, about all fields being updated in <5.4. *)
+      let formatter_out_functions = get_formatter_out_functions () in
+      let[@warning "-23"] formatter_out_functions = {
+        formatter_out_functions with
           out_flush = (fun () ->
             img := !img <-> !line; line := empty; attr := [])
         ; out_newline = (fun () ->
@@ -395,7 +400,9 @@ module I = struct
         (* Not entirely clear; either or both could be void: *)
         ; out_spaces = (fun w -> line := !line <|> char (top_a attr) ' ' w 1)
         ; out_indent = (fun w -> line := !line <|> char (top_a attr) ' ' w 1)
-      } in
+      }
+      in
+      let fmt = formatter_of_out_functions formatter_out_functions in
       pp_set_formatter_stag_functions fmt {
         (pp_get_formatter_stag_functions fmt ()) with
             mark_open_stag =
